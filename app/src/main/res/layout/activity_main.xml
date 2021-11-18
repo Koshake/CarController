@@ -6,11 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/dialView"
+    <com.koshake1.carcontroller.CarView
+        android:id="@+id/carView"
         android:layout_width="@dimen/image_width"
         android:layout_height="@dimen/image_height"
-        android:background="@android:color/darker_gray"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
