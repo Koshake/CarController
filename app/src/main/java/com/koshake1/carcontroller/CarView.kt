@@ -6,10 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import kotlin.math.min
 
-private const val RADIUS_OFFSET_LABEL = 30
-private const val RADIUS_OFFSET_INDICATOR = -35
-private const val CAR_HEIGHT = 10
-private const val CAR_WIDTH = 20
+private const val RADIUS_OFFSET_INDICATOR = -25
 
 class CarView@JvmOverloads constructor(
     context: Context,
@@ -17,12 +14,18 @@ class CarView@JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
+    init {
+        isClickable = true
+    }
+
     private var radius = 0.0f
-    private var fanSpeed = Speed.OFF
+    private var angle = 0
     private val pointPosition: PointF = PointF(0.0f, 0.0f)
 
+    private val carBitMap = BitmapFactory.decodeResource(context.resources, R.drawable.car_blue)
+
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
+        style = Paint.Style.STROKE
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -32,22 +35,27 @@ class CarView@JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        paint.color = if (fanSpeed == Speed.OFF) Color.GRAY else Color.GREEN
 
         canvas?.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, paint)
 
         val markerRadius = radius + RADIUS_OFFSET_INDICATOR
-        pointPosition.computeXYForSpeed(fanSpeed, markerRadius)
+        pointPosition.computeXYForSpeed(angle, markerRadius)
         paint.color = Color.BLACK
-        canvas?.drawCircle(pointPosition.x, pointPosition.y, radius/12, paint)
-        pointPosition.computeXYForSpeed(Speed.MEDIUM, markerRadius)
-        canvas?.drawCircle(pointPosition.x, pointPosition.y, radius/12, paint)
+        canvas?.drawBitmap(carBitMap, pointPosition.x, pointPosition.y, paint)
+    }
+
+    override fun performClick(): Boolean {
+        if (super.performClick()) return true
+
+        angle++
+        invalidate()
+        return true
 
     }
 
-    private fun PointF.computeXYForSpeed(pos: Speed, radius: Float) {
-        val startAngle = Math.PI * (9 / 8.0)
-        val angle = startAngle + pos.ordinal * (Math.PI / 4)
+    private fun PointF.computeXYForSpeed(pos: Int, radius: Float) {
+        val startAngle = Math.PI/4
+        val angle = startAngle + pos * (Math.PI / 4)
         x = (radius * kotlin.math.cos(angle)).toFloat() + width / 2
         y = (radius * kotlin.math.sin(angle)).toFloat() + height / 2
     }
