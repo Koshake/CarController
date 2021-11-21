@@ -10,6 +10,8 @@ import kotlin.math.min
 private const val RADIUS_OFFSET_INDICATOR = -35
 private const val ANIMATION_DURATION = 2000L
 private const val RADIUS_COEF = 0.75
+private const val MAX_POS = 10.5f
+private const val MIN_POS = 0.0f
 
 class CarView@JvmOverloads constructor(
     context: Context,
@@ -23,7 +25,7 @@ class CarView@JvmOverloads constructor(
 
     private lateinit var animator: ValueAnimator
     private var radius = 0.0f
-    private var angle = 0.0f
+    private var newPosition = 0.0f
     private val pointPosition: PointF = PointF(0.0f, 0.0f)
     private val carBitMap = BitmapFactory.decodeResource(context.resources, R.drawable.car_blue)
 
@@ -40,7 +42,7 @@ class CarView@JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         val markerRadius = radius + RADIUS_OFFSET_INDICATOR
-        pointPosition.computeXY(angle, markerRadius)
+        pointPosition.computeXY(newPosition, markerRadius)
         paint.color = Color.BLACK
         canvas?.drawBitmap(carBitMap, pointPosition.x, pointPosition.y, paint)
     }
@@ -54,16 +56,16 @@ class CarView@JvmOverloads constructor(
     }
 
     private fun PointF.computeXY(pos: Float, radius: Float) {
-        val angle = angle + pos * (Math.PI / 4)
+        val angle = newPosition + pos * (Math.PI / 4)
         x = (radius * kotlin.math.cos(angle)).toFloat() + width / 2
         y = (radius * kotlin.math.sin(angle)).toFloat() + height / 2
     }
 
     private fun initAnimator() {
-        animator = ValueAnimator.ofFloat(0f, 10f)
+        animator = ValueAnimator.ofFloat(MIN_POS, MAX_POS)
         animator.duration = ANIMATION_DURATION
         animator.addUpdateListener {
-            angle = it.animatedValue as Float
+            newPosition = it.animatedValue as Float
             invalidate()
         }
     }
